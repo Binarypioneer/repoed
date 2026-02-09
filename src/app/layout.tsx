@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/layout/Navbar";
+import CategoryBar from "../components/layout/CategoryBar";
+import Footer from "../components/layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,7 +12,6 @@ export const metadata: Metadata = {
   description: "Buy, sell, and discover curated high-end fashion.",
 };
 
-// Defining the props interface explicitly fixes the "Cannot find name LayoutProps" error
 interface RootLayoutProps {
   children: React.ReactNode;
 }
@@ -18,19 +19,20 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased bg-white text-black`}>
-        {/* The Navbar stays at the top of every page */}
-        <Navbar />
+      <body className={`${inter.className} antialiased bg-white text-black selection:bg-black selection:text-white`}>
+        {/* Fixed Header Container */}
+        <header className="fixed top-0 z-50 w-full bg-white border-b border-gray-100">
+          <Navbar />
+          <CategoryBar />
+        </header>
         
-        <main className="min-h-screen">
+        {/* pt-[124px] is the exact height of the combined headers. 
+            This prevents the Hero from being cut off. */}
+        <main className="min-h-screen pt-[124px]">
           {children}
         </main>
 
-        <footer className="border-t-2 border-black py-12 mt-20">
-          <div className="max-w-7xl mx-auto px-4 text-center text-xs font-black uppercase tracking-widest text-black">
-            © 2026 REPOED. All rights reserved.
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   );
