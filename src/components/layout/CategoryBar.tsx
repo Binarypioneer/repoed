@@ -27,7 +27,7 @@ const CATEGORIES_MENU = {
 export default function CategoryBar() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
-  const categories = [ "MENSWEAR", "WOMENSWEAR", "SHOES", "COLLECTIONS", "EDITORIAL"];
+  const categories = [ "MENSWEAR", "WOMENSWEAR", "SHOES", "COLLECTIONS", "ACCESSORIES"];
   const categoriesWithMenu = ["MENSWEAR", "WOMENSWEAR"];
 
   return (

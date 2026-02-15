@@ -17,7 +17,7 @@ const COLLECTIONS = [
   },
   {
     title: "The Denim Edit",
-    subtitle: "FROM GRAILED",
+    subtitle: "FROM REPOED",
     link: "/collections/denim",
     images: [
       "https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=500&auto=format&fit=crop",
