@@ -6,6 +6,15 @@ import ListingCard from "../components/listings/ListingCard";
 import { prisma } from "../lib/prisma";
 
 export default async function HomePage() {
+  // during build, Vercel may not yet have the env var; avoid crashing
+  if (!process.env.DATABASE_URL) {
+    return (
+      <div className="pb-20">
+        <Hero />
+      </div>
+    );
+  }
+
   const db = prisma as any;
   const recent = await db.listing.findMany({ include: { brand: true }, take: 4, orderBy: { createdAt: 'desc' } });
 

@@ -2,6 +2,14 @@ import ListingCard from "../../components/listings/ListingCard";
 import { prisma } from "../../lib/prisma";
 
 export default async function ShopPage({ searchParams }: { searchParams?: Promise<{ query?: string }> }) {
+  if (!process.env.DATABASE_URL) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
+        <p className="text-center text-gray-500">Loading shop…</p>
+      </div>
+    );
+  }
+
   const params = await searchParams;
   const q = (params?.query ?? "").trim();
 
