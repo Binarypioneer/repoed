@@ -31,7 +31,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           
           {/* pt-[124px] is the exact height of the combined headers. 
               This prevents the Hero from being cut off. */}
-          <main className="min-h-screen pt-[124px]">
+          <main className="min-h-screen pt-31">
             {children}
           </main>
 
