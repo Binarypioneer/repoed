@@ -1,2 +1,12 @@
-// Prisma configuration is handled via schema.prisma datasource block
-// Environment variables are managed by Vercel deployment settings
+import "dotenv/config";
+import { defineConfig } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  datasource: {
+    url: process.env["DATABASE_URL"],
+  },
+});
