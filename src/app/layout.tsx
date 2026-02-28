@@ -11,7 +11,12 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "REPOED | The Community Marketplace",
   description: "Buy, sell, and discover curated high-end fashion.",
-  viewport: "width=device-width, initial-scale=1",
+};
+
+// separate viewport export required by Next.js 14+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 interface RootLayoutProps {
