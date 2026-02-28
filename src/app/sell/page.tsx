@@ -1,9 +1,13 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
-import { ChevronDown, Camera } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Camera, Loader } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function SellPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [title, setTitle] = useState('');
   const [brand, setBrand] = useState('');
   const [size, setSize] = useState('');
@@ -11,7 +15,14 @@ export default function SellPage() {
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin?callbackUrl=/sell');
+    }
+  }, [status, router]);
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -31,10 +42,53 @@ export default function SellPage() {
     });
   }
 
-  function handleSubmit(e?: React.FormEvent) {
+  async function handleSubmit(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    // placeholder action — wiring to backend can be added later
-    alert('Listing published (demo)');
+    
+    if (!title.trim()) {
+      alert('Please enter a title');
+      return;
+    }
+    if (!price.trim()) {
+      alert('Please enter a price');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const body = { title, description, price, brandName: brand || 'Unknown', categoryName: 'Uncategorized', images, condition };
+      const res = await fetch('/api/listings', { method: 'POST', body: JSON.stringify(body) });
+      
+      if (res.status === 401) {
+        router.push('/auth/signin?callbackUrl=/sell');
+        return;
+      }
+      
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to create listing');
+      }
+      
+      const json = await res.json();
+      // navigate to new listing
+      window.location.href = `/listings/${json.id}`;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to publish listing';
+      alert(message);
+      setIsSubmitting(false);
+    }
+  }
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader className="animate-spin" size={32} />
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    return null; // Redirecting in useEffect
   }
 
   return (
@@ -65,7 +119,7 @@ export default function SellPage() {
                     return src ? (
                       <div key={i} className="relative aspect-square bg-gray-100 overflow-hidden rounded">
                         <img src={src} alt={`preview-${i}`} className="object-cover w-full h-full" />
-                        <button type="button" onClick={() => removeImage(i)} className="absolute top-2 right-2 bg-white/90 p-1 rounded-full text-xs">✕</button>
+                        <button type="button" onClick={() => removeImage(i)} disabled={isSubmitting} className="absolute top-2 right-2 bg-white/90 p-1 rounded-full text-xs">✕</button>
                       </div>
                     ) : (
                       <div key={i} className="aspect-square bg-gray-100 border border-gray-200 rounded" />
@@ -80,22 +134,22 @@ export default function SellPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Title</label>
-                    <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" placeholder="e.g. Vintage Celine Handbag" className="w-full border border-gray-200 px-4 py-3 outline-none focus:border-black" />
+                    <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" placeholder="e.g. Vintage Celine Handbag" disabled={isSubmitting} className="w-full border border-gray-200 px-4 py-3 outline-none focus:border-black disabled:bg-gray-100" />
                   </div>
 
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Brand</label>
-                    <input value={brand} onChange={(e) => setBrand(e.target.value)} type="text" placeholder="e.g. Celine" className="w-full border border-gray-200 px-4 py-3 outline-none focus:border-black" />
+                    <input value={brand} onChange={(e) => setBrand(e.target.value)} type="text" placeholder="e.g. Celine" disabled={isSubmitting} className="w-full border border-gray-200 px-4 py-3 outline-none focus:border-black disabled:bg-gray-100" />
                   </div>
 
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Size</label>
-                    <input value={size} onChange={(e) => setSize(e.target.value)} type="text" placeholder="e.g. M / 32" className="w-full border border-gray-200 px-4 py-3 outline-none focus:border-black" />
+                    <input value={size} onChange={(e) => setSize(e.target.value)} type="text" placeholder="e.g. M / 32" disabled={isSubmitting} className="w-full border border-gray-200 px-4 py-3 outline-none focus:border-black disabled:bg-gray-100" />
                   </div>
 
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Condition</label>
-                    <select value={condition} onChange={(e) => setCondition(e.target.value)} className="w-full border border-gray-200 px-4 py-3 outline-none focus:border-black bg-white">
+                    <select value={condition} onChange={(e) => setCondition(e.target.value)} disabled={isSubmitting} className="w-full border border-gray-200 px-4 py-3 outline-none focus:border-black bg-white disabled:bg-gray-100">
                       <option value="">Select condition</option>
                       <option>Deadstock</option>
                       <option>Like New</option>
@@ -110,7 +164,7 @@ export default function SellPage() {
               {/* Description */}
               <section>
                 <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Description</label>
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} placeholder="Add measurements, flaws, and any important details." className="w-full border border-gray-200 p-4 outline-none focus:border-black" />
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} disabled={isSubmitting} placeholder="Add measurements, flaws, and any important details." className="w-full border border-gray-200 p-4 outline-none focus:border-black disabled:bg-gray-100" />
               </section>
 
               {/* Price */}
@@ -118,7 +172,7 @@ export default function SellPage() {
                 <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Price (INR)</label>
                 <div className="flex items-center gap-4 max-w-md">
                   <span className="text-2xl font-black">₹</span>
-                  <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="0" className="w-full border border-gray-200 px-4 py-3 text-2xl font-black outline-none focus:border-black" />
+                  <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="0" disabled={isSubmitting} className="w-full border border-gray-200 px-4 py-3 text-2xl font-black outline-none focus:border-black disabled:bg-gray-100" />
                 </div>
               </section>
 
@@ -149,8 +203,10 @@ export default function SellPage() {
               </div>
 
               <div className="border p-4 rounded-lg">
-                <button onClick={handleSubmit} className="w-full bg-black text-white py-3 font-black uppercase">Publish</button>
-                <button className="w-full mt-3 text-xs font-black uppercase border border-gray-200 py-3">Save draft</button>
+                <button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-black text-white py-3 font-black uppercase disabled:opacity-50 disabled:cursor-not-allowed">
+                  {isSubmitting ? 'Publishing...' : 'Publish'}
+                </button>
+                <button type="button" disabled={isSubmitting} className="w-full mt-3 text-xs font-black uppercase border border-gray-200 py-3 disabled:opacity-50 disabled:cursor-not-allowed">Save draft</button>
               </div>
             </div>
           </aside>

@@ -31,8 +31,9 @@ export default function CategoryBar() {
   const categoriesWithMenu = ["MENSWEAR", "WOMENSWEAR"];
 
   return (
+    // hide on small screens, mobile menu could be implemented later
     <div 
-      className="relative w-full border-b border-gray-200 bg-white z-40"
+      className="hidden md:block relative w-full border-b border-gray-200 bg-white z-40"
       onMouseLeave={() => setActiveMenu(null)}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4">

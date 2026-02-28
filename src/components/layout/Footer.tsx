@@ -15,10 +15,10 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-white border border-gray-200 py-10 px-4 mt-20">
-      <div className="max-w-1400px mx-auto flex flex-wrap items-center justify-between gap-y-6">
+      <div className="max-w-1400px mx-auto flex flex-col md:flex-row items-center justify-between gap-y-6">
         
         {/* Main Navigation Links */}
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+        <div className="flex flex-col md:flex-row flex-wrap items-center gap-x-8 gap-y-4">
           {links.map((link) => (
             <Link
               key={link.name}
@@ -31,7 +31,7 @@ export default function Footer() {
         </div>
 
         {/* Right Side: Socials & Copyright */}
-        <div className="flex items-center gap-x-6">
+        <div className="flex flex-col md:flex-row items-center gap-x-6 gap-y-4">
           <div className="flex items-center gap-x-4">
            
             <Instagram className="w-5 h-5 cursor-pointer stroke-[1.5px]" />

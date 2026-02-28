@@ -94,8 +94,9 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
   body {
-    @apply bg-background text-foreground selection:bg-black selection:text-white;
+    @apply bg-background text-foreground selection:bg-black selection:text-white overflow-x-hidden;
   }
 }
 

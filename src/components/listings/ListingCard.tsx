@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { Heart as HeartIcon } from "lucide-react";
+import { useState } from "react";
 
 interface ListingCardProps {
   id: string;
@@ -7,6 +11,7 @@ interface ListingCardProps {
   price: number;
   size: string;
   imageUrl: string;
+  isFavorited?: boolean;
 }
 
 export default function ListingCard({
@@ -16,9 +21,32 @@ export default function ListingCard({
   price,
   size,
   imageUrl,
+  isFavorited = false,
 }: ListingCardProps) {
+  const [fav, setFav] = useState(isFavorited);
+  const [loading, setLoading] = useState(false);
+
+  async function toggleFav(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/favorites', { method: 'POST', body: JSON.stringify({ listingId: id }) });
+      if (res.ok) setFav((s) => !s);
+    } catch (err) {
+      // ignore - user will sign in if unauthenticated
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <Link href={`/listings/${id}`} className="group block">
+    <Link href={`/listings/${id}`} className="group block relative">
+      {/* Favorite button */}
+      <button onClick={toggleFav} aria-label="toggle favorite" className={`absolute z-20 right-2 top-2 p-2 rounded-full bg-white/90 border ${fav ? 'border-black' : 'border-gray-200'} hover:scale-105 transition-transform`}>
+        <HeartIcon className={`h-4 w-4 ${fav ? 'text-red-500' : 'text-gray-400'}`} />
+      </button>
+
       {/* Image Container with Thick Border on Hover */}
       <div className="relative aspect-3/4 overflow-hidden bg-gray-100 border border-transparent group-hover:border-black transition-all duration-300">
         <img
