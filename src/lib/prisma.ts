@@ -6,18 +6,28 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaNeon(
-  {
-    connectionString: process.env.DATABASE_URL,
-  },
-  { schema: "public" }
-);
+// Guard client creation so build-time imports don't try to connect without a URL
+let prisma: PrismaClient;
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-  });
+if (process.env.DATABASE_URL) {
+  const adapter = new PrismaNeon(
+    {
+      connectionString: process.env.DATABASE_URL,
+    },
+    { schema: "public" }
+  );
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+  prisma =
+    globalForPrisma.prisma ??
+    new PrismaClient({
+      adapter,
+      log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    });
+
+  if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+} else {
+  // Provide a dummy object to satisfy imports during build
+  prisma = {} as any;
+}
+
+export { prisma };
