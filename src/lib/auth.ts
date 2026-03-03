@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import type { NextAuthOptions } from "next-auth";
 import { prisma } from "./prisma";
-import { verifyEmailCode, verifyPhoneCode } from "./verification";
+import { verifyEmailCode, verifyPhoneCode} from "./verification";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma as any),
